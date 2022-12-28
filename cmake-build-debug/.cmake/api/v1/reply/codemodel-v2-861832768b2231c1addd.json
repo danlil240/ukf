@@ -1,0 +1,96 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.24"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "los_rates_estimator",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "los_rates_estimator::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-los_rates_estimator-Debug-d2ff5b9d05f9231d3742.json",
+					"name" : "los_rates_estimator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "los_rates_estimator_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-los_rates_estimator_uninstall-Debug-4f269ded0239bbe6f3b0.json",
+					"name" : "los_rates_estimator_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "test_ukf::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-test_ukf-Debug-c94f320c963892d23176.json",
+					"name" : "test_ukf",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ukf::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ukf-Debug-875574e1b6d5e2ba5db1.json",
+					"name" : "ukf",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Debug-91e7d0fc9c87af791228.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/daniel/CLionProjects/los_rates_estimator/cmake-build-debug",
+		"source" : "/home/daniel/CLionProjects/los_rates_estimator"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 4
+	}
+}

@@ -1,0 +1,25 @@
+/home/daniel/clion-2022.1.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/daniel/clion-2022.1.3/bin/ninja/linux/ninja -G Ninja -S /home/daniel/CLionProjects/los_rates_estimator -B /home/daniel/CLionProjects/los_rates_estimator/cmake-build-debug
+-- Found ament_cmake: 0.9.11 (/opt/ros/foxy/share/ament_cmake/cmake)
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rclcpp: 2.4.2 (/opt/ros/foxy/share/rclcpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 1.3.0 (/opt/ros/foxy/share/rosidl_adapter/cmake)
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 1.0.3 (/opt/ros/foxy/share/rmw_implementation_cmake/cmake)
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Found std_srvs: 2.0.5 (/opt/ros/foxy/share/std_srvs/cmake)
+-- Found sensor_msgs: 2.0.5 (/opt/ros/foxy/share/sensor_msgs/cmake)
+-- Found ament_index_cpp: 1.1.0 (/opt/ros/foxy/share/ament_index_cpp/cmake)
+-- Found ros_common: 0.0.0 (/home/daniel/eyeit_ws/install/ros_common/share/ros_common/cmake)
+-- Found ros_common_interfaces: 0.0.0 (/home/daniel/eyeit_ws/install/ros_common_interfaces/share/ros_common_interfaces/cmake)
+-- Found gimbal_controller_interfaces: 0.0.0 (/home/daniel/eyeit_ws/install/gimbal_controller_interfaces/share/gimbal_controller_interfaces/cmake)
+-- Found eyeit_interfaces: 0.0.0 (/home/daniel/eyeit_ws/install/eyeit_interfaces/share/eyeit_interfaces/cmake)
+-- Found target_estimator_interfaces: 0.0.0 (/home/daniel/eyeit_ws/install/target_estimator_interfaces/share/target_estimator_interfaces/cmake)
+-- Found fcu_driver_interfaces: 0.0.0 (/home/daniel/eyeit_ws/install/fcu_driver_interfaces/share/fcu_driver_interfaces/cmake)
+-- Found visualization_msgs: 2.0.5 (/opt/ros/foxy/share/visualization_msgs/cmake)
+-- Found diagnostic_msgs: 2.0.5 (/opt/ros/foxy/share/diagnostic_msgs/cmake)
+-- Found ament_cmake_gtest: 0.9.11 (/opt/ros/foxy/share/ament_cmake_gtest/cmake)
+-- Module version: 1.0.0-
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/daniel/CLionProjects/los_rates_estimator/cmake-build-debug

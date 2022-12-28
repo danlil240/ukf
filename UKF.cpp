@@ -14,7 +14,7 @@ UKF::UKF()
 
 UKF::UKF(VectorXd x0, MatrixXd P0, MatrixXd Q,
          MatrixXd R,
-         void (*process_model_func)(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt, VectorXb flags),
+         void (*process_model_func)(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags),
          const VectorXb &process_flags, const VectorXb &measurements_flags)
         : x_(std::move(x0)), P_(std::move(P0)), Q_(std::move(Q)), R_(std::move(R))
 {
@@ -26,7 +26,7 @@ UKF::UKF(VectorXd x0, MatrixXd P0, MatrixXd Q,
 
 
 void UKF::initialize(VectorXd x0, MatrixXd P0, MatrixXd Q, MatrixXd R,
-                     void (*process_model_func)(const MatrixXd &, const VectorXd &, MatrixXd &, double dt,
+                     void (*process_model_func)(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt,
                                                 VectorXb flags), const VectorXb &process_flags,
                      const VectorXb &measurements_flags)
 {
@@ -54,7 +54,7 @@ void UKF::predict(const VectorXd &u)
     
     // Propagate sigma points through process model
     MatrixXd X_pred;
-    processModel(X, u, X_pred, dt_,process_flags_);
+    calcProcess(X, u, X_pred);
     
     
     // Calculate mean and covariance of predicted state
@@ -72,7 +72,7 @@ void UKF::update(const VectorXd &z)
     
     // Propagate sigma points through measurement model
     MatrixXd Z;
-    (*measurementModel)(X, Z,measurements_flags_);
+    (*measurementModel)(X, Z, measurements_flags_);
     
     // Calculate mean and covariance of predicted measurement
     VectorXd z_pred = Z * W;
@@ -106,18 +106,17 @@ void UKF::calcSigmaPoints(Eigen::MatrixXd &X, Eigen::VectorXd &W)
     W.tail(2 * n).setConstant((1 - lambda) / (n + lambda * R_(0, 0)));
 }
 
-//
-//void UKF::measurementModel(const MatrixXd &X, MatrixXd &Z)
-//{
-//    // Propagate sigma points through measurement model
-//
-//    int n = X.cols();
-//    Z = MatrixXd::Zero(H.rows(), n);
-//    for (int i = 0; i < n;i++)
-//    {
-//        Z.col(i) = H * X.col(i);
-//    }
-//}
+void UKF::calcProcess(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred)
+{
+    X_pred=MatrixXd::Zero(X.rows(),X.cols());
+    for (int i = 0; i < X.cols(); i++)
+    {
+        VectorXd x_pred;
+        processModel(X.col(i), u, x_pred, dt_, process_flags_);
+        X_pred.col(i) = x_pred;
+    }
+}
+
 
 VectorXd UKF::getState() const
 {
@@ -142,7 +141,7 @@ void UKF::setMeasurementNoise(MatrixXd R)
     
 }
 
-void UKF::setMeasurementModel(void (*func)(const MatrixXd &X, MatrixXd &Z,VectorXb flags))
+void UKF::setMeasurementModel(void (*func)(const MatrixXd &X, MatrixXd &Z, VectorXb flags))
 {
     measurementModel = func;
 }

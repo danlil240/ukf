@@ -5,7 +5,6 @@
 #include "model.hpp"
 
 
-
 model::model()
 = default;
 
@@ -13,62 +12,43 @@ model::~model()
 = default;
 
 
-
-void model::nonLinModel(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt,VectorXb flags)
+void model::nonLinModel(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags)
 {
-    X_pred=MatrixXd::Zero(11,23);
-    Vector23d r = X.row(STATE_RANGE);
-    Vector23d r_dot = X.row(STATE_RANGE_RATE);
-    Vector23d pitch = X.row(STATE_PITCH);
-    Vector23d pitch_rate = X.row(STATE_PITCH_RATE);
-    Vector23d yaw = X.row(STATE_YAW);
-    Vector23d yaw_rate = X.row(STATE_YAW_RATE);
-    Vector23d gimbal_pitch = X.row(STATE_GIMBAL_PITCH);
-    Vector23d gimbal_yaw = X.row(STATE_GIMBAL_YAW);
-    Vector23d gyro_x = X.row(STATE_GYRO_X);
-    Vector23d gyro_y = X.row(STATE_GYRO_Y);
-    Vector23d gyro_z = X.row(STATE_GYRO_Z);
-    
-    // The acceleration of a vector in spherical coordinates:
-    // https://en.wikipedia.org/wiki/Spherical_coordinate_system#Kinematics
-    // Assuming no acceleration, each element (r, theta, phi) must be 0.
-    // r_dot_dot, theta_dot_dot and phi_dot_dot can then be solved for
-    
-    Vector23d phi_dot = yaw_rate;
-    Vector23d theta = pitch + Vector23d::Ones() * M_PI_2; // In the spherical kinematics equations, theta = 0 is up;
-    Vector23d theta_dot = pitch_rate;
-    
-    Vector23d theta_dot_dot = Vector23d::Zero();
-    Vector23d phi_dot_dot = Vector23d::Zero();
-    Vector23d r_dot_dot = Vector23d::Zero();
-    std::cout << "flags(RECEIVED_LRF): " <<   flags(RECEIVED_LRF) << std::endl;
+    x_pred = VectorXd::Zero(x.size());
+    double phi_dot = x(STATE_YAW_RATE);
+    double theta = x(STATE_PITCH) + M_PI_2; // In the spherical kinematics equations, theta = 0 is up;
+    double theta_dot = x(STATE_PITCH_RATE);
+    double theta_dot_dot = 0;
+    double phi_dot_dot = 0;
+    double r_dot_dot = 0;
+    std::cout << "flags(RECEIVED_LRF): " << flags(RECEIVED_LRF) << std::endl;
     
     if (flags(RECEIVED_LRF))
     {
-        for (int column = 0; column < 23; column++)
+        r_dot_dot = x(STATE_RANGE) * pow(theta_dot, 2) +
+                    x(STATE_RANGE) * pow(phi_dot, 2) * pow(sin(theta), 2);
+        
+        if (flags(RANGE_RATE_VALID))
         {
-            r_dot_dot(column) = r(column) * pow(theta_dot(column), 2) +
-                                r(column) * pow(phi_dot(column), 2) * pow(sin(theta(column)), 2);
-            
-            if (flags(RANGE_RATE_VALID))//valid_range_rate_)
-            {
-                theta_dot_dot(column) = -2 * r_dot(column) * theta_dot(column) / r(column) +
-                                        pow(phi_dot(column), 2) * sin(theta(column)) * cos(theta(column));
-                phi_dot_dot(column) = -2 * r_dot(column) * phi_dot(column) / r(column) -
-                                      2 * theta_dot(column) * phi_dot(column) * cos(theta(column)) /
-                                      sin(theta(column));
-            }
+            theta_dot_dot = -2 * x(STATE_RANGE_RATE) * theta_dot / x(STATE_RANGE) +
+                            pow(phi_dot, 2) * sin(theta) * cos(theta);
+            phi_dot_dot = -2 * x(STATE_RANGE_RATE) * phi_dot / x(STATE_RANGE) -
+                          2 * theta_dot * phi_dot * cos(theta) /
+                          sin(theta);
         }
         
-        X_pred.row(STATE_RANGE) = r + r_dot * dt;
-        X_pred.row(STATE_RANGE_RATE) = r_dot + r_dot_dot * dt;
+        x_pred(STATE_RANGE) = x(STATE_RANGE) + x(STATE_RANGE_RATE) * dt;
+        x_pred(STATE_RANGE_RATE) = x(STATE_RANGE_RATE) + r_dot_dot * dt;
     }
-    
-    X_pred.row(STATE_PITCH) = pitch + pitch_rate * dt;
-    X_pred.row(STATE_PITCH_RATE) = pitch_rate + theta_dot_dot * dt;
-    X_pred.row(STATE_YAW) = yaw + yaw_rate * dt;
-    X_pred.row(STATE_YAW_RATE) = yaw_rate + phi_dot_dot * dt;
-    X_pred.row(STATE_GIMBAL_PITCH) = gimbal_pitch + gyro_y * dt;
+    x_pred(STATE_PITCH) = x(STATE_PITCH) + x(STATE_PITCH_RATE) * dt;
+    x_pred(STATE_PITCH_RATE) = x(STATE_PITCH_RATE) + theta_dot_dot * dt;
+    x_pred(STATE_YAW) = x(STATE_YAW) + x(STATE_YAW_RATE) * dt;
+    x_pred(STATE_YAW_RATE) = x(STATE_YAW_RATE) + phi_dot_dot * dt;
+    x_pred(STATE_GIMBAL_PITCH) = x(STATE_GIMBAL_PITCH) + x(STATE_GYRO_Y) * dt;
+    x_pred(STATE_GIMBAL_YAW) = x(STATE_GIMBAL_YAW) + x(STATE_GYRO_Z) * dt;
+    x_pred(STATE_GYRO_X) = x(STATE_GYRO_X);
+    x_pred(STATE_GYRO_Y) = x(STATE_GYRO_Y);
+    x_pred(STATE_GYRO_Z) = x(STATE_GYRO_Z);
 }
 
 
@@ -102,7 +82,7 @@ Matrix3d model::worldToCameraRotation(double gimbal_pitch, double gimbal_yaw)
 }
 
 
-void model::LOSFromGimbalAndCamera(double &los_pitch, double &los_yaw,Vector8d y)
+void model::LOSFromGimbalAndCamera(double &los_pitch, double &los_yaw, Vector8d y)
 {
     Vector3d target_position_in_image = {y(MEASUREMENT_X1C), y(MEASUREMENT_Y1C), 1};
     Vector3d los_direction_world_frame =
@@ -114,7 +94,7 @@ void model::LOSFromGimbalAndCamera(double &los_pitch, double &los_yaw,Vector8d y
 
 
 void model::visionFromGimbalAndLos(double los_pitch, double los_yaw, double gimbal_pitch, double gimbal_yaw,
-                            double &x1c, double &y1c)
+                                   double &x1c, double &y1c)
 {
     // Calculate ENU LOS vector from angles
     Vector3d normalized_los_enu;
@@ -133,14 +113,14 @@ void model::visionFromGimbalAndLos(double los_pitch, double los_yaw, double gimb
 
 void model::initializeRangeAndRangeRate(double range)
 {
-    
+
 
 //
 //    P_(STATE_RANGE, STATE_RANGE) = initial_covariance_(STATE_RANGE);
 //    P_(STATE_RANGE_RATE, STATE_RANGE_RATE) = initial_covariance_(STATE_RANGE_RATE);
 }
 
-void model::stateToMeasurementVision(const MatrixXd &X, MatrixXd &Z,VectorXb flags)
+void model::stateToMeasurementVision(const MatrixXd &X, MatrixXd &Z, VectorXb flags)
 {
     Z = MatrixXd(2, 23);
     for (int i = 0; i < 23; i++)
@@ -154,7 +134,7 @@ void model::stateToMeasurementVision(const MatrixXd &X, MatrixXd &Z,VectorXb fla
 }
 
 
-void model::stateToMeasurementGimbal(const MatrixXd &X, MatrixXd &Z,VectorXb flags)
+void model::stateToMeasurementGimbal(const MatrixXd &X, MatrixXd &Z, VectorXb flags)
 {
     
     Z = MatrixXd(5, 23);
@@ -168,7 +148,7 @@ void model::stateToMeasurementGimbal(const MatrixXd &X, MatrixXd &Z,VectorXb fla
 }
 
 
-void model::stateToMeasurementLRF(const MatrixXd &X, MatrixXd &Z,VectorXb flags)
+void model::stateToMeasurementLRF(const MatrixXd &X, MatrixXd &Z, VectorXb flags)
 {
     Z = MatrixXd(1, 23);
     Z.row(0) = X.row(STATE_RANGE);

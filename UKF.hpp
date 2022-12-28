@@ -19,13 +19,13 @@ public:
     UKF();
     
     UKF(VectorXd x0, MatrixXd P0, MatrixXd Q,
-        MatrixXd R, void (*process_model_func)(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt,VectorXb flags),const VectorXb& process_flags,const VectorXb& measurements_flags);
+        MatrixXd R, void (*process_model_func)(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags),const VectorXb& process_flags,const VectorXb& measurements_flags);
     
     ~UKF();
     
     void initialize(VectorXd x0, MatrixXd P0, MatrixXd Q,
                     MatrixXd R,
-                    void (*process_model_func)(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt,VectorXb flags),const VectorXb& process_flags,const VectorXb& measurements_flags);
+                    void (*process_model_func)(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags),const VectorXb& process_flags,const VectorXb& measurements_flags);
     
     void predict(const VectorXd &u);
     
@@ -67,12 +67,14 @@ private:
     VectorXb process_flags_;
     VectorXb measurements_flags_;
     
-    void (*processModel)(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt,VectorXb flags){};
+    void (*processModel)(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags){};
     
     void (*measurementModel)(const MatrixXd &X, MatrixXd &Z,VectorXb flags){};
     
     double dt_{};
     
+    
+    void calcProcess(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred);
 };
 
 #endif //LOS_RATES_ESTIMATOR_UKF_HPP

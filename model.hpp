@@ -66,7 +66,7 @@ public:
     
     static void stateToMeasurementLRF(const MatrixXd &X, MatrixXd &Z, VectorXb flags);
     
-    static void nonLinModel(const MatrixXd &X, const VectorXd &u, MatrixXd &X_pred, double dt, VectorXb flags);
+    static void nonLinModel(const VectorXd &x, const VectorXd &u, VectorXd &x_pred, double dt, VectorXb flags);
     
     static void LOSFromGimbalAndCamera(double &los_pitch, double &los_yaw, Vector8d y);
     
